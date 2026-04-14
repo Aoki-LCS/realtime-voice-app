@@ -1,6 +1,6 @@
 # Gemini Live 音声対話アプリ 設計書 (Full-Stack & Secure Edition)
 
-https://realtime-voice-app-ten.vercel.app/
+https://realtime-voice-app-lilac.vercel.app/
 
 ## 1. 概要
 
