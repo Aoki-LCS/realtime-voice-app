@@ -1,6 +1,6 @@
 # Gemini Live 音声対話アプリ 設計書 (Full-Stack & Secure Edition)
 
-https://realtime-voice-app-ten.vercel.app/
+https://realtime-voice-app-lilac.vercel.app/
 
 ## 1. 概要
 
@@ -93,3 +93,24 @@ AIとの通信と音声ロジックをカプセル化しています。
 - **没入型デザイン**: テキストログを排除し、アバターとの「対面」を重視。
     
 - **スクロールバー排除**: UIのノイズを減らし、フルスクリーン体験に近い操作感を提供。
+
+## 8. Vercel デプロイメント
+
+本アプリを Vercel で公開する際の手順と設定は以下の通りです。
+
+### 8.1 デプロイ手順
+1. GitHub リポジトリを作成し、プロジェクトをプッシュします。
+2. Vercel ダッシュボードから「Add New Project」を選択し、リポジトリをインポートします。
+3. **重要: 環境設定**
+   - Vercel のプロジェクト設定画面の「Environment Variables」にて、`GEMINI_API_KEY` を追加し、[Google AI Studio](https://aistudio.google.com/) で取得した API キーを設定してください。
+4. 設定後、「Deploy」をクリックします。
+
+### 8.2 フレームワーク設定
+Vercel は自動的に Vite を認識しますが、以下の設定になっていることを確認してください。
+- **Framework Preset**: `Vite`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+
+### 8.3 注意点
+- **HTTPS**: ブラウザのマイク機能（`getUserMedia`）を使用するため、HTTPS での通信が必須となります（Vercel では標準で提供されます）。
+- **WebSocket**: Gemini Live API への WebSocket 接続をクライアントサイドで行うため、ブラウザから Google のドメインへの接続が許可されている必要があります。
