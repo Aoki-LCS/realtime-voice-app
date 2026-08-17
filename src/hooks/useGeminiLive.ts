@@ -41,7 +41,7 @@ export function useGeminiLive() {
     setIsSpeaking(false);
   }, []);
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (customApiKey?: string) => {
     if (isConnecting || isConnected) return;
     setIsConnecting(true);
     setError(null);
@@ -49,11 +49,12 @@ export function useGeminiLive() {
     setTranscript("");
 
     try {
-      // In AI Studio, process.env.GEMINI_API_KEY is securely handled by the platform's proxy.
-      // For external production, you would typically proxy this through your own backend.
-      const apiKey = process.env.GEMINI_API_KEY;
+      // Prioritize custom user-entered API key, then localStorage, then environment variable
+      const storedKey = typeof window !== 'undefined' ? localStorage.getItem('gemini_live_api_key') : null;
+      const apiKey = customApiKey || storedKey || process.env.GEMINI_API_KEY;
+      
       if (!apiKey) {
-        throw new Error("GEMINI_API_KEYが見つかりません。シークレットに追加してください。");
+        throw new Error("APIキーが設定されていません。右上の鍵アイコンからGemini APIキーを設定してください。");
       }
 
       // Optional: Check backend health before starting
