@@ -41,7 +41,7 @@ export function useGeminiLive() {
     setIsSpeaking(false);
   }, []);
 
-  const start = useCallback(async (customApiKey?: string) => {
+  const start = useCallback(async () => {
     if (isConnecting || isConnected) return;
     setIsConnecting(true);
     setError(null);
@@ -49,12 +49,9 @@ export function useGeminiLive() {
     setTranscript("");
 
     try {
-      // Prioritize custom user-entered API key, then localStorage, then environment variable
-      const storedKey = typeof window !== 'undefined' ? localStorage.getItem('gemini_live_api_key') : null;
-      const apiKey = customApiKey || storedKey || process.env.GEMINI_API_KEY;
-      
-      if (!apiKey) {
-        throw new Error("APIキーが設定されていません。右上の鍵アイコンからGemini APIキーを設定してください。");
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey || apiKey.trim() === "") {
+        throw new Error(".env または環境変数に GEMINI_API_KEY が設定されていません。");
       }
 
       // Optional: Check backend health before starting

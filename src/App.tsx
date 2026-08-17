@@ -1,49 +1,17 @@
-import { useState, useEffect } from "react";
-import { Mic, MicOff, Loader2, MessageSquare, Info, Key } from "lucide-react";
+import { Mic, MicOff, Loader2, MessageSquare, Info } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useGeminiLive } from "./hooks/useGeminiLive";
 import { Visualizer } from "./components/Visualizer";
 import { CharacterAvatar } from "./components/CharacterAvatar";
-import { ApiKeyModal } from "./components/ApiKeyModal";
 
 export default function App() {
   const { start, stop, isConnected, isConnecting, isSpeaking, error } = useGeminiLive();
-  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-  const [apiKey, setApiKey] = useState<string>("");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("gemini_live_api_key") || "";
-      setApiKey(saved);
-    }
-  }, []);
-
-  const handleSaveApiKey = (newKey: string) => {
-    setApiKey(newKey);
-    if (typeof window !== "undefined") {
-      if (newKey) {
-        localStorage.setItem("gemini_live_api_key", newKey);
-      } else {
-        localStorage.removeItem("gemini_live_api_key");
-      }
-    }
-  };
-
-  const handleStart = () => {
-    // If no API key is saved and no env key is available, open the modal to help the user
-    const hasEnvKey = !!process.env.GEMINI_API_KEY;
-    if (!apiKey && !hasEnvKey) {
-      setIsApiKeyModalOpen(true);
-      return;
-    }
-    start(apiKey);
-  };
 
   return (
     <div className="min-h-screen bg-emerald-50 flex flex-col items-center justify-center p-4 font-sans text-slate-900">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-emerald-100 flex flex-col h-[600px] relative">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-emerald-100 flex flex-col h-[600px]">
         {/* Header */}
-        <header className="p-5 border-b border-emerald-50 bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between">
+        <header className="p-6 border-b border-emerald-50 bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-white" />
@@ -51,27 +19,10 @@ export default function App() {
             <h1 className="font-semibold text-lg tracking-tight">Gemini Live</h1>
           </div>
           
-          <div className="flex items-center gap-2">
-            {/* API Key Settings Button */}
-            <button
-              onClick={() => setIsApiKeyModalOpen(true)}
-              className={`p-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition border ${
-                apiKey
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                  : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-              }`}
-              title="APIキーを設定する"
-            >
-              <Key className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{apiKey ? "キー設定済" : "APIキー設定"}</span>
-              {apiKey && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
-            </button>
-
-            <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-              isConnected ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
-            }`}>
-              {isConnected ? "オンライン" : "オフライン"}
-            </div>
+          <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+            isConnected ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
+          }`}>
+            {isConnected ? "オンライン" : "オフライン"}
           </div>
         </header>
 
@@ -84,9 +35,9 @@ export default function App() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="text-center space-y-4 py-8"
+                className="text-center space-y-4 py-12"
               >
-                <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Mic className="w-10 h-10 text-emerald-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800">Gemini Liveを開始</h2>
@@ -94,22 +45,9 @@ export default function App() {
                   リアルタイムでAIと音声対話<br/>
                   <span className="text-[10px] text-slate-400">※マイクへのアクセスが必要です</span>
                 </p>
-
-                <div className="pt-2 flex flex-col gap-2 max-w-[280px] mx-auto">
-                  {!apiKey && !process.env.GEMINI_API_KEY && (
-                    <button
-                      onClick={() => setIsApiKeyModalOpen(true)}
-                      className="text-xs bg-amber-50 text-amber-800 border border-amber-200 py-2 px-3 rounded-xl hover:bg-amber-100 transition flex items-center justify-center gap-1.5 font-medium"
-                    >
-                      <Key className="w-3.5 h-3.5 text-amber-600" />
-                      <span>ご自身のAPIキーを設定する</span>
-                    </button>
-                  )}
-                  
-                  <div className="flex items-center gap-2 justify-center text-xs text-slate-400 bg-emerald-50/80 py-1.5 px-3 rounded-full">
-                    <Info className="w-3.5 h-3.5" />
-                    <span>マイク許可とAPIキーが必要です</span>
-                  </div>
+                <div className="flex items-center gap-2 justify-center text-xs text-slate-400 bg-emerald-50 py-2 px-4 rounded-full w-fit mx-auto">
+                  <Info className="w-3.5 h-3.5" />
+                  <span>マイクへのアクセス許可が必要</span>
                 </div>
               </motion.div>
             ) : (
@@ -136,18 +74,10 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-medium flex flex-col gap-2 border border-red-100"
+              className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-medium flex items-center gap-2 border border-red-100"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
-                <span>{error}</span>
-              </div>
-              <button
-                onClick={() => setIsApiKeyModalOpen(true)}
-                className="self-start underline text-red-700 hover:text-red-800 font-semibold"
-              >
-                APIキーを設定・変更する →
-              </button>
+              <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
+              <span>{error}</span>
             </motion.div>
           )}
         </main>
@@ -155,13 +85,14 @@ export default function App() {
         {/* Footer / Controls */}
         <footer className="p-8 bg-white border-t border-slate-50 flex flex-col items-center">
           <button
-            onClick={isConnected ? stop : handleStart}
+            onClick={isConnected ? stop : start}
             disabled={isConnecting}
             className={`group relative flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
               isConnected 
                 ? "bg-red-500 hover:bg-red-600 shadow-red-200" 
                 : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200"
             }`}
+            aria-label={isConnected ? "通話を終了" : "通話を開始"}
           >
             {isConnecting ? (
               <Loader2 className="w-8 h-8 text-white animate-spin" />
@@ -181,14 +112,6 @@ export default function App() {
           </p>
         </footer>
       </div>
-
-      {/* API Key Modal */}
-      <ApiKeyModal
-        isOpen={isApiKeyModalOpen}
-        onClose={() => setIsApiKeyModalOpen(false)}
-        savedApiKey={apiKey}
-        onSaveApiKey={handleSaveApiKey}
-      />
       
       <p className="mt-8 text-slate-400 text-sm">
         Powered by <span className="font-semibold text-emerald-600">Gemini 3.1 Flash Live</span>
@@ -196,4 +119,3 @@ export default function App() {
     </div>
   );
 }
-
